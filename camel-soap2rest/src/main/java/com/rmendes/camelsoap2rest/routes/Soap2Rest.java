@@ -28,15 +28,14 @@ public class Soap2Rest extends RouteBuilder{
 				exchange.getIn().setBody(c);
 			}
 		})
-		.setHeader(CxfConstants.OPERATION_NAME, constant("{{endpoint.operation.celsius.to.fahrenheit}}"))//TODO dynamic
-		.setHeader(CxfConstants.OPERATION_NAMESPACE, constant("http://learnwebservices.com/services/tempconverter"))
+		.setHeader(CxfConstants.OPERATION_NAME, constant("{{endpoint.operation.celsius.to.fahrenheit}}"))
+		.setHeader(CxfConstants.OPERATION_NAMESPACE, constant("{{endpoint.namespace}}"))
 		.to("cxf:bean:cxfConvertTemp")
 		.process(new Processor() {
 			@Override
 			public void process(Exchange exchange) throws Exception {
 				MessageContentsList response = (MessageContentsList) exchange.getIn().getBody();
 				CelsiusToFahrenheitResponse r = (CelsiusToFahrenheitResponse) response.get(0);
-				System.out.println("Temp in Farenheit: "+r.getTemperatureInFahrenheit());
 				exchange.getIn().setBody("Temp in Farenheit: "+r.getTemperatureInFahrenheit());
 			}
 		})
@@ -52,8 +51,8 @@ public class Soap2Rest extends RouteBuilder{
 				exchange.getIn().setBody(r);
 			}
 		})
-		.setHeader(CxfConstants.OPERATION_NAME, constant("{{endpoint.operation.fahrenheit.to.celsius}}"))//TODO dynamic
-		.setHeader(CxfConstants.OPERATION_NAMESPACE, constant("http://learnwebservices.com/services/tempconverter"))
+		.setHeader(CxfConstants.OPERATION_NAME, constant("{{endpoint.operation.fahrenheit.to.celsius}}"))
+		.setHeader(CxfConstants.OPERATION_NAMESPACE, constant("{{endpoint.namespace}}"))
 		.to("cxf:bean:cxfConvertTemp")
 		.process(new Processor() {
 			@Override
