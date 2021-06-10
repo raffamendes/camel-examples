@@ -33,13 +33,7 @@ public class TimeZoneConverter extends RouteBuilder{
 			})
 			.to("mock:output")
 			.doCatch(ZoneRulesException.class)
-				.process(new Processor() {
-					
-					@Override
-					public void process(Exchange exchange) throws Exception {	
-						
-					}
-				}).to("mock:output");
+				.setBody(simple("{{error.message}}")).to("mock:output");
 		
 	}
 	
