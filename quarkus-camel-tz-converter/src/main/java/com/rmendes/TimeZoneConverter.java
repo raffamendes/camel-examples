@@ -14,6 +14,9 @@ public class TimeZoneConverter extends RouteBuilder	 {
 
 	@Override
 	public void configure() throws Exception {
+		
+		getContext().setManagementName("tz-converter");
+		
 		from("direct:tz-converter")
 		.doTry()
 			.process( new Processor() {
