@@ -10,7 +10,7 @@ public class RestConfig extends RouteBuilder{
 	@Override
 	public void configure() throws Exception {
 		restConfiguration()
-		.component("netty-http").host("0.0.0.0").port(9090)
+		.component("netty-http").host("0.0.0.0").port(8080)
 		.bindingMode(RestBindingMode.auto)
 			.dataFormatProperty("prettyPrint", "true")
 			.contextPath("/")
