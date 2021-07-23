@@ -1,11 +1,6 @@
 ## Stage 1 : build with maven builder image with native capabilities
 FROM registry.access.redhat.com/quarkus/mandrel-20-rhel8:20.3 AS build
-#COPY pom.xml /usr/src/app/
-#RUN mvn -f pom.xml -B de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
-#USER root
-#RUN chown -R quarkus src
-#USER quarkus
-RUN mvn -f pom.xml -Pnative clean package
+RUN mvn package -Pnative -DskipTests
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/ubi-minimal
