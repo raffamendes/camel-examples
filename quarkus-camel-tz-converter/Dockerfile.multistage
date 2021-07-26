@@ -1,5 +1,5 @@
 ## Stage 1 : build with maven builder image with native capabilities
-FROM quay.io/quarkus/ubi-quarkus-native-image:21.1.0-java11 AS build
+FROM ubi-quarkus-native-image:21.1.0-java11 AS build
 COPY pom.xml /project/
 COPY mvnw /project/mvnw
 COPY .mvn /project/.mvn
@@ -10,7 +10,7 @@ COPY src /project/src
 RUN ./mvnw package -Pnative
 
 ## Stage 2 : create the docker final image
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
+FROM ubi-minimal:8.4-205.1626828526
 WORKDIR /work/
 COPY --from=build /project/target/*-runner /work/application
 
