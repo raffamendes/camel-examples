@@ -7,7 +7,7 @@ USER quarkus
 WORKDIR /project
 RUN ./mvnw -B org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline
 COPY src /project/src
-RUN ./mvnw package -Pnative -DskipTests
+RUN ./mvnw clean package -Pnative -DskipTests
 RUN ls -lah /project
 
 ## Stage 2 : create the docker final image
