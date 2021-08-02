@@ -1,0 +1,83 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: quarkus-native
+  namespace: quarkus-camel-tz-converter
+spec:
+  params:
+    - description: The Image name to be built
+      name: IMAGE
+      type: string
+    - description: The workpsace source directory
+      name: CONTEXT_DIR
+      type: string
+    - default: .
+      description: The dockerfile to build
+      name: DOCKERFILE
+      type: string
+    - default: >-
+        registry.redhat.io/rhel8/buildah@sha256:6a68ece207bc5fd8db2dd5cc2d0b53136236fb5178eb5b71eebe5d07a3c33d13
+      description: The location of the buildah builder image.
+      name: BUILDER_IMAGE
+      type: string
+    - default: 'true'
+      description: >-
+        Verify the TLS on the registry endpoint (for push/pull to a non-TLS
+        registry)
+      name: TLSVERIFY
+      type: string
+  steps:
+    - args:
+        - ./mvnw package -Pnative -DskipTests
+      command:
+        - /bin/bash
+        - '-c'
+      image: 'registry.access.redhat.com/quarkus/mandrel-20-rhel8:20.3'
+      name: build-native-exec
+      resources: {}
+      securityContext:
+        runAsUser: 0
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT_DIR)
+    - command:
+        - buildah
+        - bud
+        - '--storage-driver=vfs'
+        - '--tls-verify=$(params.TLSVERIFY)'
+        - '--layers'
+        - '-f'
+        - src/main/docker/Dockerfile.native
+        - '-t'
+        - $(params.IMAGE)
+        - .
+      image: $(params.BUILDER_IMAGE)
+      name: build-image
+      resources: {}
+      volumeMounts:
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT_DIR)
+    - command:
+        - buildah
+        - push
+        - '--storage-driver=vfs'
+        - '--tls-verify=$(params.TLSVERIFY)'
+        - $(params.IMAGE)
+        - 'docker://$(params.IMAGE)'
+      image: 'quay.io/buildah/stable:v1.17.0'
+      name: push-image
+      resources: {}
+      volumeMounts:
+        - mountPath: /var/lib/containers
+          name: varlibcontainers
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT_DIR)
+  volumes:
+    - emptyDir: {}
+      name: varlibcontainers
+  workspaces:
+    - description: The workspace consisting of the source code to build
+      name: source
+    - description: Secret containing the config.json for the registry
+      mountPath: /native
+      name: dockerconfig
+      optional: true
+
